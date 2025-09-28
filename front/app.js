@@ -9,13 +9,39 @@ let state = {
 // Helpers
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
 
+async function apiFetchTodos(filter) {
+  const res = await fetch(`${API_BASE}/todos?filter=${encodeURIComponent(filter)}`);
+  if (!res.ok) throw new Error(`API fetch todos failed: ${res.status}`);
+  return res.json();
+}
+
+async function apiCreateTodo(payload) {
+  const res = await fetch(`${API_BASE}/todos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error('create failed');
+  return res.json();
+}
+
+async function apiUpdateTodo(id, payload) {
+  const res = await fetch(`${API_BASE}/todos/${encodeURIComponent(id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  if (!res.ok) throw new Error('update failed');
+  return res.json();
+}
+
+async function apiDeleteTodo(id) {
+  const res = await fetch(`${API_BASE}/todos/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('delete failed');
+  return res.json();
+}
+
+async function apiClearCompleted() {
+  const res = await fetch(`${API_BASE}/todos/clear_completed`, { method: 'POST' });
+  if (!res.ok) throw new Error('clear failed');
+  return res.json();
+}
+
 async function load() {
-  // Try backend first
   try {
-    const res = await fetch(`${API_BASE}/todos?filter=${state.filter}`);
-    if (!res.ok) throw new Error('api error');
-    const data = await res.json();
-    // map backend shape to client
+    const data = await apiFetchTodos(state.filter);
     state.todos = data.map(d => ({ id: d.id, title: d.title, completed: !!d.completed, createdAt: new Date(d.createdAt).getTime() }));
     return;
   } catch (err) {
@@ -32,28 +58,8 @@ async function load() {
   }
 }
 
-async function save() {
-  // Try to persist via API when possible
-  try {
-    // Send each todo to backend (create or update)
-    await Promise.all(state.todos.map(async t => {
-      const payload = { id: t.id, title: t.title, completed: !!t.completed };
-      // Try put first to update
-      const put = await fetch(`${API_BASE}/todos/${encodeURIComponent(t.id)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (put.status === 404) {
-        await fetch(`${API_BASE}/todos`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      }
-    }));
-    return;
-  } catch (err) {
-    // ignore and fallback to localStorage
-    console.warn('Persist to backend failed, saving locally', err);
-  }
-
+// Keep save() for localStorage fallback/out-of-band sync
+async function saveLocal() {
   try {
     localStorage.setItem('tpi_todos_v1', JSON.stringify(state.todos));
   } catch (e) {
@@ -151,22 +157,31 @@ function render() {
 function addTodo(title) {
   const trimmed = title.trim();
   if (!trimmed) return false;
-  const todo = { id: uid(), title: trimmed, completed: false, createdAt: Date.now() };
-  state.todos.unshift(todo);
-  save().then(() => render()).catch(() => render());
+  const payload = { id: uid(), title: trimmed, completed: false };
+  (async () => {
+    try {
+      await apiCreateTodo(payload);
+    } catch (e) {
+      console.warn('Create API failed, falling back to local add', e);
+      state.todos.unshift({ ...payload, createdAt: Date.now() });
+      saveLocal();
+    }
+    await load();
+    render();
+  })();
   return true;
 }
 
 function removeTodo(id) {
-  state.todos = state.todos.filter(t => t.id !== id);
-  // try delete in backend
   (async () => {
     try {
-      await fetch(`${API_BASE}/todos/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      await apiDeleteTodo(id);
     } catch (e) {
-      console.warn('Delete API failed', e);
+      console.warn('Delete API failed, falling back to local remove', e);
+      state.todos = state.todos.filter(t => t.id !== id);
+      await saveLocal();
     }
-    await save();
+    await load();
     render();
   })();
 }
@@ -175,7 +190,16 @@ function toggleComplete(id) {
   const t = state.todos.find(x => x.id === id);
   if (!t) return;
   t.completed = !t.completed;
-  save().then(() => render());
+  (async () => {
+    try {
+      await apiUpdateTodo(id, { completed: t.completed });
+    } catch (e) {
+      console.warn('Update API failed, saving locally', e);
+      await saveLocal();
+    }
+    await load();
+    render();
+  })();
 }
 
 function startEdit(id, titleNode) {
@@ -197,7 +221,17 @@ function startEdit(id, titleNode) {
         if (t) t.title = val;
       }
     }
-    save().then(() => render());
+    (async () => {
+      try {
+        const t = state.todos.find(x => x.id === id);
+        if (t) await apiUpdateTodo(id, { title: t.title });
+      } catch (e) {
+        console.warn('Update API failed', e);
+        await saveLocal();
+      }
+      await load();
+      render();
+    })();
   }
 
   input.addEventListener('blur', () => finish(true));
@@ -208,14 +242,15 @@ function startEdit(id, titleNode) {
 }
 
 function clearCompleted() {
-  state.todos = state.todos.filter(t => !t.completed);
   (async () => {
     try {
-      await fetch(`${API_BASE}/todos/clear_completed`, { method: 'POST' });
+      await apiClearCompleted();
     } catch (e) {
       console.warn('Clear completed API failed', e);
+      state.todos = state.todos.filter(t => !t.completed);
+      await saveLocal();
     }
-    await save();
+    await load();
     render();
   })();
 }
@@ -223,7 +258,8 @@ function clearCompleted() {
 function setFilter(f) {
   state.filter = f;
   filterButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.filter === f));
-  render();
+  // Reload tasks for the filter from backend
+  load().then(() => render());
 }
 
 // Event wiring
@@ -239,6 +275,9 @@ clearCompletedBtn.addEventListener('click', () => clearCompleted());
 
 // Init
 (function init(){
-  load();
-  render();
+  // Load from backend first, then render
+  load().then(() => render());
+
+  // Reload when the window/tab regains focus, to keep in sync with DB
+  window.addEventListener('focus', () => { load().then(() => render()); });
 })();
