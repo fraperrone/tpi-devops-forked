@@ -40,11 +40,11 @@ services:
       - ./back:/app
 
 
-      test-back:
+  test-back:
     build:
       context: ./back
     container_name: tpi_test_back
-    command: pytest tpi/devops/back/tests/test_api.py
+    entrypoint: bash -c "./wait-for-db-test.sh && python -m pytest tests"
     depends_on:
       db:
         condition: service_healthy
@@ -55,6 +55,7 @@ services:
       WAIT_FOR_DB_TIMEOUT: '120'
     volumes:
       - ./back:/app
+
 
 
   front:
