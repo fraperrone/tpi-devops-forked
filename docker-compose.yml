@@ -39,6 +39,24 @@ services:
     volumes:
       - ./back:/app
 
+
+      test-back:
+    build:
+      context: ./back
+    container_name: tpi_test_back
+    command: pytest tpi/devops/back/tests/test_api.py
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: 'mysql+pymysql://todo_user:secure_password@db:3306/todos_db'
+      DB_HOST: db
+      DB_PORT: '3306'
+      WAIT_FOR_DB_TIMEOUT: '120'
+    volumes:
+      - ./back:/app
+
+
   front:
     build:
       context: ./front
