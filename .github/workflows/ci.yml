@@ -78,15 +78,12 @@ jobs:
       - name: Push frontend image
         run: docker push $IMAGE_FRONT:latest
 
-  deploy-staging:
+  deploy-back:
     needs: [docker-publish]
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Deploy to staging (placeholder)
+      - name: Trigger backend deploy on Render
         run: |
-          echo "Desplegando en entorno de staging..."
-          echo "Usando DB: ${{ secrets.STAGING_DB_URL }}"
-          echo "Clave secreta: ${{ secrets.SECRET_KEY }}"
+          curl -X POST https://api.render.com/deploy/srv-d4em2q2li9vc73avh6fg \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
