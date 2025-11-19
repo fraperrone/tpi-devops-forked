@@ -73,7 +73,7 @@ jobs:
 
       - name: Inyectar URL del backend en index.html
         run: |
-          sed -i 's|<script>window.__API_BASE__="https://tpi-back.onrender.com"</script>|<!--__API_BASE__-->|' index.html
+          sed -i 's|<script>window.__API_BASE__="https://tpi-back.onrender.com"</script>|<!--__API_BASE__-->|' ./front/index.html
 
       # <script>window.__API_BASE__="https://tpi-back.onrender.com"</script>
       # <!--__API_BASE__-->
