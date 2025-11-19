@@ -1,4 +1,4 @@
-// app.js - Lógica de la To-Do list (cliente)
+// app.js - Lógica de la To-Do list (cliente) 1
 const API_BASE = window.__API_BASE__ || 'http://127.0.0.1:8000';
 
 let state = {
