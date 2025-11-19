@@ -6,10 +6,9 @@ on:
   pull_request:
 
 env:
-  REGISTRY: docker.io
-  USERNAME: franperrone
-  IMAGE_BACK: ${{ vars.REGISTRY }}/${{ vars.USERNAME }}/tpi-back
-  IMAGE_FRONT: ${{ vars.REGISTRY }}/${{ vars.USERNAME }}/tpi-front
+  IMAGE_BACK: docker.io/franperrone/tpi-back
+  IMAGE_FRONT: docker.io/franperrone/tpi-front
+
 
 jobs:
   build-backend:
