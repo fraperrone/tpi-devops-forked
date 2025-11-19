@@ -69,6 +69,16 @@ jobs:
       - name: Build backend image
         run: docker build -t $IMAGE_BACK:latest ./back
 
+      #modificacion de prubea para el frontend
+
+      - name: Inyectar URL del backend en index.html
+        run: |
+          sed -i 's|<script>window.__API_BASE__="https://tpi-back.onrender.com"</script>|<!--__API_BASE__-->|' index.html
+
+      # <script>window.__API_BASE__="https://tpi-back.onrender.com"</script>
+      # <!--__API_BASE__-->
+
+
       - name: Build frontend image
         run: docker build -t $IMAGE_FRONT:latest ./front
 
@@ -99,10 +109,6 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
-
-      - name: Inyectar URL del backend en index.html
-        run: |
-          sed -i 's|<!--__API_BASE__-->|<script>window.__API_BASE__="https://tpi-back.onrender.com"</script>|' index.html
 
       - name: Trigger frontend deploy on Render
         run: |
