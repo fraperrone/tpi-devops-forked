@@ -112,5 +112,5 @@ jobs:
 
       - name: Trigger frontend deploy on Render
         run: |
-          curl -X POST https://api.render.com/deploy/srv-d4f139n5r7bs73cdj85g \
+          curl -X POST https://api.render.com/deploy/srv-d4f3o2vpm1nc73em1gfg \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
