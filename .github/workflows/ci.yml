@@ -90,7 +90,7 @@ jobs:
 
 
   deploy-front:
-    needs: [build-frontend]
+    needs: [docker-publish]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     defaults:
