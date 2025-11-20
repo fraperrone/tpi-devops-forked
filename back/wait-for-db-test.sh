@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DB_HOST=${DB_HOST:-db}
-DB_PORT=${DB_PORT:-3306}
+DB_PORT=${DB_PORT:-5432}
 WAIT_TIMEOUT=${WAIT_FOR_DB_TIMEOUT:-120}
 
 echo "Waiting for TCP $DB_HOST:$DB_PORT (timeout=${WAIT_TIMEOUT}s)"
