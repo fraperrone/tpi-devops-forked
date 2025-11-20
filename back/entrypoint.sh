@@ -1,6 +1,10 @@
 #!/usr/bin/env bashh
 set -euo pipefail
 
+## verificacion del entrypoint
+echo "🚀 Entrypoint iniciado"
+echo "DATABASE_URL: ${DATABASE_URL-}"
+
 # Extraer host y puerto desde DATABASE_URL
 if [ -n "${DATABASE_URL-}" ]; then
   echo "📡 Detectando host y puerto desde DATABASE_URL..."
