@@ -14,8 +14,10 @@ Base = declarative_base()
 env_db = os.getenv("DATABASE_URL")
 if env_db:
     DATABASE_URL = env_db
+    print(" DABASE_URL found, using:", DATABASE_URL)
 else:
     # fallback to SQLite stored under the repo's db/ folder
+    print(" DATABASE_URL not found, using local SQLite database")
     os.makedirs(os.path.join(os.path.dirname(__file__), "..", "db"), exist_ok=True)
     DATABASE_URL = "sqlite:///./db/todos.db"
 
