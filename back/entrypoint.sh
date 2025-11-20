@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Validacion inicial
+echo "🚀 Entrypoint iniciado"
+echo "DATABASE_URL: ${DATABASE_URL-}"
+
+
 # Preserve whether DB_HOST was provided by the environment (vs using default)
 ORIG_DB_HOST_RAW="${DB_HOST-}"
 
