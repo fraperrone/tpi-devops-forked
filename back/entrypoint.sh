@@ -1,4 +1,4 @@
-#!/usr/bin/env bashh
+#!/usr/bin/env bash
 set -euo pipefail
 
 ## verificacion del entrypoint
