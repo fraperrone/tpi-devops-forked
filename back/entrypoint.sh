@@ -8,7 +8,7 @@ ORIG_DB_HOST_RAW="${DB_HOST-}"
 # the MySQL server process exists but is still initializing and refusing
 # connections. Use DB_HOST and DB_PORT or default to service name 'db' and 3306.
 DB_HOST=${DB_HOST:-db}
-DB_PORT=${DB_PORT:-3306}
+DB_PORT=${DB_PORT:-5432} # MySQL would be 3306, Postgres is 5432 !!!
 WAIT_TIMEOUT=${WAIT_FOR_DB_TIMEOUT:-120}
 
 # If neither DATABASE_URL nor an explicit DB_HOST were provided, skip waiting.
