@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bashh
 set -euo pipefail
 
 # Extraer host y puerto desde DATABASE_URL
