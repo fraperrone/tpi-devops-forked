@@ -24,3 +24,5 @@ done
 
 echo "Running Python DB readiness check..."
 python wait_for_db.py || true
+
+#
