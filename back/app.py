@@ -74,8 +74,7 @@ class TodoOut(BaseModel):
 
 app = FastAPI(title="ToDo API")
 
-# Crear tablas si no existen
-Base.metadata.create_all(bind=engine)
+
 
 
 app.add_middleware(
@@ -189,6 +188,10 @@ def clear_completed(db: Session = Depends(get_db)):
     deleted = db.query(TodoModel).filter(TodoModel.completed == True).delete()
     db.commit()
     return {"deleted": deleted}
+
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 
 if __name__ == "__main__":
