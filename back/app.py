@@ -82,7 +82,14 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     yield
 
-app = FastAPI(title="ToDo API", lifespan=lifespan)
+
+
+app = FastAPI(title="ToDo API")
+print("🛠️ Creando tablas si no existen...")
+Base.metadata.create_all(bind=engine)
+
+
+
 
 if os.getenv("TESTING") != "true":
     print("🛠️ Creando tablas si no existen...")
