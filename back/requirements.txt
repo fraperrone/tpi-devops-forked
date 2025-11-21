@@ -6,3 +6,4 @@ httpx>=0.24
 pytest>=7.0
 pymysql>=1.0
 cryptography>=40.0
+psycopg2-binary
