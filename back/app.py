@@ -74,6 +74,10 @@ class TodoOut(BaseModel):
 
 app = FastAPI(title="ToDo API")
 
+# Crear tablas si no existen
+Base.metadata.create_all(bind=engine)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://tpi-devops-forked.onrender.com"],
