@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Validacion inicial
+# Validacion inicial 1
 echo "🚀 Entrypoint iniciado"
 echo "DATABASE_URL: ${DATABASE_URL-}"
 
