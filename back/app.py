@@ -74,7 +74,15 @@ class TodoOut(BaseModel):
         fields = {"createdAt": "created_at"}
 
 
-app = FastAPI(title="ToDo API")
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("🛠️ Creando tablas si no existen...")
+    Base.metadata.create_all(bind=engine)
+    yield
+
+app = FastAPI(title="ToDo API", lifespan=lifespan)
 
 if os.getenv("TESTING") != "true":
     print("🛠️ Creando tablas si no existen...")
