@@ -18,8 +18,9 @@ if env_db:
 else:
     # fallback to SQLite stored under the repo's db/ folder
     print(" DATABASE_URL not found, using local SQLite database")
-    os.makedirs(os.path.join(os.path.dirname(__file__), "..", "db"), exist_ok=True)
-    DATABASE_URL = "sqlite:///./db/todos.db"
+    db_dir = os.path.join(os.path.dirname(__file__), "db")
+    os.makedirs(db_dir, exist_ok=True)
+    DATABASE_URL = f"sqlite:///{os.path.join(db_dir, 'todos.db')}"
 
 # Create engine, enabling sqlite-specific connect_args when needed
 engine = create_engine(
@@ -47,6 +48,7 @@ class TodoModel(Base):
 
 
 def init_db():
+    print("🛠️ Creando tablas si no existen...")
     Base.metadata.create_all(bind=engine)
 
 
