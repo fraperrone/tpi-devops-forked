@@ -8,6 +8,8 @@ on:
 env:
   IMAGE_BACK: docker.io/franperrone/tpi-back
   IMAGE_FRONT: docker.io/franperrone/tpi-front
+  TESTING: "true"
+
 
 
 jobs:

@@ -76,7 +76,9 @@ class TodoOut(BaseModel):
 
 app = FastAPI(title="ToDo API")
 
-
+if os.getenv("TESTING") != "true":
+    print("🛠️ Creando tablas si no existen...")
+    Base.metadata.create_all(bind=engine)
 
 
 app.add_middleware(
